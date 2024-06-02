@@ -1,4 +1,3 @@
-[# Job-Web-Scraper
 
 ### Features
 
