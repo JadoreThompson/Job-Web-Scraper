@@ -22,10 +22,11 @@ def wait_class(driver, class_item):
 
 
 
-i = 2
+i = 1
 while True:
     try:
-        load_more_xp = f"/html/body/div[{i}]/div/main/div/div[3]/div[2]/div[3]/button"
+        print("I is: ", i)
+        load_more_xp = f"/html/body/div[2]/div/main/div/div[3]/div[2]/div[3]/button"
         load_more = driver.find_element(By.XPATH, load_more_xp)
 
         ActionChains(driver).scroll_to_element(load_more).perform() # Scrolling to the load more button
@@ -37,16 +38,16 @@ while True:
             ac_btn.click()
         except NoSuchElementException:
             print("No such AC")
-            break
+            continue
 
         # time.sleep(3)
         load_more.click()
-        i += 1
         time.sleep(3)
+        i += 1
 
     except NoSuchElementException:
-        print("No such element")
         break
+
 
 
 
