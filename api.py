@@ -24,8 +24,30 @@ def read_root():
 
 
 @app.get("/apprenticeships", response_model=List[DbModel])
-def all_apprenticeships():
+def all_apprenticeships(comp_name: Optional[str] = None, postcode: Optional[str] = None):
     conn, cur = get_conn_cur()
+
+    def query_condition(query):
+        db_query = f"""
+                SELECT * FROM jobs
+                WHERE comp_name='{query}';
+                """
+        cur.execute(db_query)
+        rows = cur.fetchall()
+
+        for row in rows:
+            all_apps = [DbModel(id=row[0], link=row[1], postcode=row[2], comp_name=row[3])]
+
+        cur.close()
+        conn.close()
+
+        return all_apps
+
+    if comp_name is not None:
+        return query_condition(comp_name)
+
+    if postcode is not None:
+        return query_condition(postcode)
 
     db_query = """
         SELECT * FROM jobs;
@@ -33,29 +55,28 @@ def all_apprenticeships():
     cur.execute(db_query)
     rows = cur.fetchall()
 
-    all_apps = [DbModel(link=row[1], postcode=row[2], comp_name=row[3]) for row in rows]
+    all_apps = [DbModel(id=row[0], link=row[1], postcode=row[2], comp_name=row[3]) for row in rows]
 
-    conn.commit()
     cur.close()
     conn.close()
 
     return all_apps
 
 
-@app.get("/apprenticeships/{task_id}")
-def get_apprenticeship(task_id: int):
+@app.get("/apprenticeships/{app_id}", response_model=DbModel)
+def get_apprenticeship(app_id: int):
     conn, cur = get_conn_cur()
 
     db_query = f"""
         SELECT * FROM jobs 
-        WHERE id='{task_id}' ;
+        WHERE id='{app_id}' ;
     """
     cur.execute(db_query)
     rows = cur.fetchall()
 
-    apprenticeship = [dict(zip([column[0] for column in cur.description], row)) for row in rows]
+    for row in rows:
+        apprenticeship = DbModel(id=row[0], link=row[1], postcode=row[2], comp_name=row[3])
 
-    conn.commit()
     cur.close()
     conn.close()
 
