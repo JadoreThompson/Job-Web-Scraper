@@ -1,4 +1,10 @@
 import time
+import psycopg2
+import python_postgres
+from python_postgres import get_cur, get_conn
+
+import os
+from dotenv import load_dotenv
 
 import requests
 from bs4 import BeautifulSoup
@@ -10,9 +16,16 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 
+from pprint import pprint
 
+
+load_dotenv('.env')
+
+
+cur = get_cur()
+conn = get_conn()
 driver = webdriver.Chrome()
-driver.get("https://www.qa.com/apprenticeships/apprenticeship-jobs/?postcode=E17%205RG&distance=30&startat=0&howmany=12")
+driver.get(os.getenv('TARGET_URL'))
 
 def wait_xpath(driver, xpath_item):
     WebDriverWait(driver, 300).until(EC.presence_of_element_located((By.XPATH, xpath_item)))
@@ -21,7 +34,7 @@ def wait_class(driver, class_item):
     WebDriverWait(driver, 300).until(EC.presence_of_element_located((By.CLASS_NAME, class_item)))
 
 
-
+# logic
 i = 1
 while True:
     try:
@@ -49,21 +62,32 @@ while True:
         break
 
 
-
-
 url_rn = driver.current_url
 rsp = requests.get(url_rn)
 html_content = rsp.text
 
 soup = BeautifulSoup(html_content, "html.parser")
 
-list_of_links = []
+
+insert_values = []
 for link in soup.find_all('a', href=True):
-    lead_link = link.get('href')
-    if lead_link.startswith("https://qaapprenticeships"):
-        list_of_links.append(lead_link)
+    lead = link.get('href')
+    if lead.startswith(os.getenv('TARGET_PREFIX')):
+        postcode = "12345"
+        comp_name = "Company Placeholder"
+        insert_values.append((str(lead), str(postcode), str(comp_name)))
 
-for link in list_of_links:
-    print(list_of_links)
 
-time.sleep(3000)
+# Adding to DB
+insert_script = """
+    INSERT INTO jobs (link, postcode, comp_name)
+    VALUES (%s, %s, %s)
+    ON CONFLICT (link) DO NOTHING;
+"""
+insert_values_tp = tuple(insert_values)
+cur.executemany(insert_script, insert_values_tp)
+
+print("Connection is:", conn)
+conn.commit()
+cur.close()
+conn.close()
