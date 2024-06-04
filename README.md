@@ -1,34 +1,3 @@
-
-### Features
-
----
-
-- periodically scrapers linkedin, indeed and other job boards for IT, apprenticeships, software developer and related roles
-- store in database
-    - link
-    - name
-    - location
-
-### Tech Stack
-
----
-
-- Language
-    - Python
-- Packages
-    - Selenium / Beautiful Soup
-- Database Management
-    - Postgre SQL
-- API Development:
-    - Fast API
-](https://github.com/JadoreThompson/Job-Web-Scraper/tree/development
-
-### Goal
-
----
-
-The goal is to create a web scraper tool to retrieve the latest IT, Software Development and Engineering, both apprenticeships and internships, roles from selected websites.
-
 ### Features
 
 ---
@@ -39,9 +8,6 @@ The goal is to create a web scraper tool to retrieve the latest IT, Software Dev
     - link
     - name
     - location
-- Websites
-    - [Indeed](https://uk.indeed.com/)
-    - [LinkedIn](https://www.linkedin.com/feed/)
 
 ### Tech Stack
 
@@ -71,4 +37,4 @@ The goal is to create a web scraper tool to retrieve the latest IT, Software Dev
 ---
 
 - API
-    - Define base model for response)
+    - Define base model for response
