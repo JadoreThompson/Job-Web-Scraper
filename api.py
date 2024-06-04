@@ -1,21 +1,10 @@
 import uvicorn
 import psycopg2
 from fastapi import FastAPI
-from python_postgres import conn, cur
+from models import get_conn_cur
 
 app = FastAPI()
 
-def get_conn_cur():
-    conn = psycopg2.connect(
-        host="localhost",
-        dbname="jobwebscraper",
-        user="postgres",
-        password="Jadore10@",
-        port=5432
-    )
-    cur = conn.cursor()
-
-    return conn, cur
 
 @app.get("/")
 def read_root():

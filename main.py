@@ -1,7 +1,7 @@
-import time
 import psycopg2
-import python_postgres
-from python_postgres import get_cur, get_conn
+from models import get_conn_cur
+
+import time
 
 import os
 from dotenv import load_dotenv
@@ -16,16 +16,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 
-from pprint import pprint
 
 
-load_dotenv('.env')
-
-
-cur = get_cur()
-conn = get_conn()
-driver = webdriver.Chrome()
-driver.get(os.getenv('TARGET_URL'))
 
 def wait_xpath(driver, xpath_item):
     WebDriverWait(driver, 300).until(EC.presence_of_element_located((By.XPATH, xpath_item)))
@@ -34,7 +26,11 @@ def wait_class(driver, class_item):
     WebDriverWait(driver, 300).until(EC.presence_of_element_located((By.CLASS_NAME, class_item)))
 
 
-# logic
+
+
+load_dotenv('.env')
+driver = webdriver.Chrome()
+driver.get(os.getenv('TARGET_URL'))
 i = 1
 while True:
     try:
@@ -78,16 +74,21 @@ for link in soup.find_all('a', href=True):
         insert_values.append((str(lead), str(postcode), str(comp_name)))
 
 
-# Adding to DB
+
+# adding to DB
+conn, cur = get_conn_cur()
+
 insert_script = """
     INSERT INTO jobs (link, postcode, comp_name)
     VALUES (%s, %s, %s)
     ON CONFLICT (link) DO NOTHING;
 """
-insert_values_tp = tuple(insert_values)
-cur.executemany(insert_script, insert_values_tp)
 
-print("Connection is:", conn)
+print("All Values: ", insert_values)
+
+cur.executemany(insert_script, insert_values)
+
 conn.commit()
 cur.close()
+
 conn.close()
