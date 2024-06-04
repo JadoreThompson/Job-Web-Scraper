@@ -12,16 +12,19 @@ class DbModel(BaseModel):
 
 conn, cur = get_conn_cur()
 
-db_query = """
-    SELECT * FROM jobs;
+app_id = 1
+
+db_query = f"""
+    SELECT * FROM jobs 
+    WHERE id={app_id} ;
 """
+
 cur.execute(db_query)
 rows = cur.fetchall()
-print("All Rows: ", rows)
-
-i = 0
-all_apps = [DbModel(link=row[1], postcode=row[2], comp_name=row[3]) for row in rows]
-print(all_apps)
+if rows:
+    print(rows)
+else:
+    print("DOG")
 
 conn.commit()
 cur.close()
